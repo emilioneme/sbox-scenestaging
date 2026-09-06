@@ -124,6 +124,9 @@ public sealed class TestWeapon : Component, PlayerController.IEvents, ICameraSet
 
 	protected override void OnUpdate()
 	{
+		if ( IsProxyPlayer() )
+			return;
+
 		if ( Input.Pressed( "Drop" ) )
 		{
 			ToggleLower();
@@ -271,6 +274,9 @@ public sealed class TestWeapon : Component, PlayerController.IEvents, ICameraSet
 	{
 		base.OnEnabled();
 
+		if ( IsProxyPlayer() )
+			return;
+
 		CreateViewmodel();
 	}
 
@@ -305,6 +311,9 @@ public sealed class TestWeapon : Component, PlayerController.IEvents, ICameraSet
 
 	protected override void OnFixedUpdate()
 	{
+		if ( IsProxyPlayer() )
+			return;
+
 		if ( Input.Pressed( "Flashlight" ) )
 		{
 			// Cycle through to the next fire mode, wrapping around using modulo
@@ -506,7 +515,7 @@ public sealed class TestWeapon : Component, PlayerController.IEvents, ICameraSet
 
 	void ICameraSetup.Setup( CameraComponent cc )
 	{
-		if ( viewmodel is null ) return;
+		if ( viewmodel is null || IsProxyPlayer() ) return;
 
 		viewmodel.Tags.Set( "viewer", !BodyRenderer.Tags.Has( "viewer" ) );
 
@@ -525,6 +534,11 @@ public sealed class TestWeapon : Component, PlayerController.IEvents, ICameraSet
 			cc.LocalPosition += bone.LocalPosition * scale;
 			cc.LocalRotation *= bone.LocalRotation * scale;
 		}
+	}
+
+	bool IsProxyPlayer()
+	{
+		return Components.Get<PlayerController>( FindMode.InAncestors )?.IsProxy ?? true;
 	}
 
 	public float HolsterTime => 1.2f;

@@ -4,6 +4,8 @@
 @inherits PanelComponent
 @namespace Sandbox
 
+@if (!IsProxyPlayer())
+{
 <root>
 	<label class="title">Weapons</label>
 	<div class="weapons">
@@ -29,6 +31,7 @@
 	</div>
 
 </root>
+}
 
 @code
 {
@@ -36,6 +39,11 @@
 	/// the hash determines if the system should be rebuilt. If it changes, it will be rebuilt
 	/// </summary>
 	protected override int BuildHash() => System.HashCode.Combine( Time.Now );
+
+	bool IsProxyPlayer()
+	{
+		return Components.Get<PlayerController>( FindMode.InAncestors )?.IsProxy ?? true;
+	}
 
 	string GetClass( TestWeapon weapon )
 	{
@@ -67,6 +75,8 @@
 
 	protected override void OnUpdate()
 	{
+		if ( IsProxyPlayer() ) return;
+
 		if (isSwitching) return;
 
 		var weapons = GameObject.Root.GetComponentsInChildren<TestWeapon>(true).ToList();
